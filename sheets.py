@@ -1,10 +1,11 @@
+import logging
 import uuid
 from google_shared import get_credentials
 from googleapiclient.discovery import build
-import uuid
 import time
 
-
+# Create a logger instance
+logger = logging.getLogger(__name__)
 
 def create_google_sheets_document(title: str) -> str:
     # Get credentials
@@ -92,7 +93,7 @@ def write_cloudwatch_to_google_sheets(field_names: list[str], data: list[list[st
                 if retry == max_retries - 1:
                     raise e
                 else:
-                    print(f"Encountered error: {e}. Retrying in {retry_delay} seconds...")
+                    logger.error(f"Encountered error: {e}. Retrying in {retry_delay} seconds...")
                     time.sleep(retry_delay)
                     retry_delay *= 2
                     

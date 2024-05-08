@@ -1,11 +1,14 @@
 import io
 import uuid
 import pandas as pd
+import logging
 from google_shared import get_credentials
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseUpload
 import uuid
 
+# Get the logger from the calling module
+logger = logging.getLogger(__name__)
 
 def create_excel_file(field_names: list[str], data: list[list[str]]) -> io.BytesIO:
     # Create a DataFrame from the data
@@ -55,5 +58,7 @@ def write_cloudwatch_to_google_drive(field_names: list[str], data: list[list[str
     # Upload the Excel file to Google Drive
     file_id = upload_excel_to_drive(excel_file, file_name)
     
+    # Log the file name
+    logger.info(f"Uploaded file: {file_name}")
+    
     return file_name
-

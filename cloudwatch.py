@@ -1,10 +1,10 @@
 import boto3
 from datetime import datetime, timedelta
-from constants import QUERY, LOG_GROUP
+from constants import LOG_GROUP
 import time
 
 # Function to get log records from AWS CloudWatch
-def get_log_records() -> list[dict[str:str]]:
+def get_log_records(query: str) -> list[dict[str:str]]:
     # Create a client for AWS CloudWatch Logs
     client = boto3.client('logs')
 
@@ -13,7 +13,7 @@ def get_log_records() -> list[dict[str:str]]:
         logGroupName=LOG_GROUP,
         startTime=int((datetime.now() - timedelta(days=90)).timestamp()),
         endTime=int(datetime.now().timestamp()),
-        queryString=QUERY,
+        queryString=query,
     )
 
     # Extract the query ID from the response
