@@ -92,6 +92,7 @@ def write_cloudwatch_to_google_sheets(field_names: list[str], data: list[list[st
     )
     request.execute()
     
+    # Append the log records to the sheet (ideally this could be done outside of a loop but the API has a rate limit of 60 requests per minute - which can be increased)
     for row in data:
         values = [row]
         request = service.spreadsheets().values().append(
@@ -116,5 +117,22 @@ def write_cloudwatch_to_google_sheets(field_names: list[str], data: list[list[st
                     print(f"Encountered error: {e}. Retrying in {retry_delay} seconds...")
                     time.sleep(retry_delay)
                     retry_delay *= 2
+                    
+    # Autofit columns in the sheet
+    request = service.spreadsheets().batchUpdate(spreadsheetId=spreadsheet_id, body={
+        'requests': [
+            {
+                'autoResizeDimensions': {
+                    'dimensions': {
+                        'sheetId': 0,
+                        'dimension': 'COLUMNS',
+                        'startIndex': 0,
+                        'endIndex': len(field_names)
+                    }
+                }
+            }
+        ]
+    })
+    request.execute()
     
     return doc_name
