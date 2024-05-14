@@ -11,7 +11,7 @@ def get_log_records(query: str) -> list[dict[str:str]]:
     # Start a query to fetch logs from the past 90 days
     start_query_response = client.start_query(
         logGroupName=LOG_GROUP,
-        startTime=int((datetime.now() - timedelta(days=90)).timestamp()),
+        startTime=int((datetime.now() - timedelta(days=120)).timestamp()),
         endTime=int(datetime.now().timestamp()),
         queryString=query,
     )

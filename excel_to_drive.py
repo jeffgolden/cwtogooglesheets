@@ -5,12 +5,12 @@ import logging
 from google_shared import get_credentials
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseUpload
-import uuid
+from typing import List
 
 # Get the logger from the calling module
 logger = logging.getLogger(__name__)
 
-def create_excel_file(field_names: list[str], data: list[list[str]]) -> io.BytesIO:
+def create_excel_file(field_names: List[str], data: List[List[str]]) -> io.BytesIO:
     # Create a DataFrame from the data
     df = pd.DataFrame(data, columns=field_names)
     
@@ -35,9 +35,9 @@ def upload_excel_to_drive(excel_file: io.BytesIO, title: str) -> str:
         'name': title,
         'mimeType': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     }
-    media = io.BytesIO(excel_file.read())
-    media.seek(0)
-    media_upload = MediaIoBaseUpload(media, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
+    excel_file.seek(0)
+    media_upload = MediaIoBaseUpload(excel_file, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     request =  service.files().create(media_body=media_upload, body = {
         'name': title,
         'mimeType': 'application/vnd.google-apps.spreadsheet'
@@ -47,7 +47,7 @@ def upload_excel_to_drive(excel_file: io.BytesIO, title: str) -> str:
     file = request.execute()
     return file['id']
 
-def write_cloudwatch_to_google_drive(field_names: list[str], data: list[list[str]]) -> str:
+def write_cloudwatch_to_google_drive(field_names: List[str], data: List[List[str]]) -> str:
     # Generate a unique ID for the file name
     uuid_string = str(uuid.uuid4().hex)
     file_name = f"demo-file-{uuid_string}.xlsx"
@@ -57,6 +57,7 @@ def write_cloudwatch_to_google_drive(field_names: list[str], data: list[list[str
     
     # Upload the Excel file to Google Drive
     file_id = upload_excel_to_drive(excel_file, file_name)
+    logger.info(f"Uploaded file with ID: {file_id}")
     
     # Log the file name
     logger.info(f"Uploaded file: {file_name}")
